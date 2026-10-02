@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07121f">
+<title>ICE HOCKEY STORY V7</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#07121f;color:#f5f8fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:720px;margin:auto;padding:16px 13px 100px}.title{font-size:34px;font-weight:900;margin:35px 0 6px}.sub{color:#8fa7b9}
+.card{background:#0d1d2d;border:1px solid #294861;border-radius:17px;padding:15px;margin:11px 0}
+h2,h3{margin:0 0 10px}p{line-height:1.5}label{display:block;color:#9db1c0;font-size:12px;margin:11px 0 5px}
+input,select{width:100%;height:46px;border:1px solid #365a74;border-radius:10px;background:#081522;color:#fff;padding:8px;font-size:16px}
+button{width:100%;min-height:46px;border:1px solid #3c6c88;border-radius:11px;background:#153149;color:#fff;font-weight:800;font-size:14px;padding:9px;margin-top:7px}
+.primary{background:#087da8;border-color:#69dcff}.green{background:#15583d;border-color:#61df99}.red{background:#612f39;border-color:#ff7373}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.stat{background:#081522;border:1px solid #1e394f;border-radius:11px;padding:9px}.stat small{display:block;color:#91a8ba}.stat b{font-size:20px}
+.bar{height:7px;background:#20394e;border-radius:9px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:#55bde5}
+.feed{border-top:1px solid #20394e;padding-top:7px;margin-top:7px;font-size:12px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#07121ff5;border-top:1px solid #294861;padding:6px 7px calc(6px + env(safe-area-inset-bottom));display:flex;gap:4px}
+nav button{margin:0;background:transparent;border:0;color:#8fa7b9;font-size:10px;min-height:44px}nav button.active{background:#12304a;color:#fff}
+.choice{text-align:left}.choice b{display:block}.choice small{display:block;color:#9db1c0;font-weight:500;margin-top:3px}
+.score{text-align:center;font-size:29px;font-weight:900;margin:12px}.pill{display:inline-block;border:1px solid #365a74;border-radius:999px;padding:3px 8px;font-size:11px;color:#a9c0cf}
+table{width:100%;border-collapse:collapse;font-size:12px}td,th{text-align:left;padding:7px 4px;border-bottom:1px solid #20394e}th{color:#91a8ba}
+.hidden{display:none}
+</style>
+</head>
+<body><div id="app"></div>
+<script>
+"use strict";
+const KEY="ICE_HOCKEY_STORY_V7";
+let S=null, page="home";
+
+const AFF=[
+["Edmonton Oilers","Bakersfield Condors","Fort Wayne Komets"],["Seattle Kraken","Coachella Valley Firebirds","Kansas City Mavericks"],
+["Vancouver Canucks","Abbotsford Canucks","Kalamazoo Wings"],["Minnesota Wild","Iowa Wild","Jacksonville Icemen"],
+["Boston Bruins","Providence Bruins","Maine Mariners"],["Colorado Avalanche","Colorado Eagles","New Mexico Goatheads"],
+["Florida Panthers","Charlotte Checkers","Savannah Ghost Pirates"],["Washington Capitals","Hershey Bears","South Carolina Stingrays"],
+["Detroit Red Wings","Grand Rapids Griffins","Toledo Walleye"],["Toronto Maple Leafs","Toronto Marlies","Cincinnati Cyclones"],
+["Calgary Flames","Calgary Wranglers","Rapid City Rush"],["Dallas Stars","Texas Stars","Idaho Steelheads"],
+["New Jersey Devils","Utica Comets","Adirondack Thunder"],["Montreal Canadiens","Laval Rocket","Trois-Rivières Lions"],
+["Tampa Bay Lightning","Syracuse Crunch","Orlando Solar Bears"],["Philadelphia Flyers","Lehigh Valley Phantoms","Reading Royals"],
+["Pittsburgh Penguins","Wilkes-Barre/Scranton Penguins","Florida Everblades"],["Columbus Blue Jackets","Cleveland Monsters","Wheeling Nailers"],
+["Los Angeles Kings","Ontario Reign","Greenville Swamp Rabbits"],["Chicago Blackhawks","Rockford IceHogs","Indy Fuel"],
+["San Jose Sharks","San Jose Barracuda","Wichita Thunder"],["Anaheim Ducks","San Diego Gulls","Tulsa Oilers"],
+["Nashville Predators","Milwaukee Admirals","Atlanta Gladiators"],["Winnipeg Jets","Manitoba Moose","Bloomington Bison"]
+];
+const EURO={
+"SHL":["Frölunda HC","Färjestad BK","Skellefteå AIK","Luleå HF"],
+"Liiga":["Tappara","Ilves","HIFK","Kärpät"],"DEL":["Eisbären Berlin","Adler Mannheim","Red Bull München"],
+"National League":["ZSC Lions","HC Davos","SC Bern","EV Zug"],"Czech Extraliga":["HC Dynamo Pardubice","HC Sparta Praha","HC Oceláři Třinec"],
+"ICEHL":["Red Bull Salzburg","KAC","Vienna Capitals"],"Asia League":["Tohoku Free Blades","Red Eagles Hokkaido","Yokohama Grits"]
+};
+const JUN={
+"Canada CHL":["London Knights","Oshawa Generals","Seattle Thunderbirds","Medicine Hat Tigers"],
+"US NCAA":["Boston University","Michigan Wolverines","Minnesota Golden Gophers","Denver Pioneers"],
+"Sweden":["Frölunda HC J20","Djurgårdens IF J20","Skellefteå AIK J20"],
+"Finland":["Tappara U20","HIFK U20","Jokerit U20"],"Japan":["Tohoku Free Blades","Red Eagles Hokkaido","Yokohama Grits","Nikko IceBucks"]
+};
+const BASE=["shoot","pass","speed","stamina","physical","defense","position","hands"];
+const NAMES={shoot:"シュート",pass:"パス",speed:"スピード",stamina:"スタミナ",physical:"フィジカル",defense:"ディフェンス",position:"ポジショニング",hands:"ハンドリング"};
+const GK=["save","rebound","position","speed","stamina","puck","oneonone"];
+const GKN={save:"セービング",rebound:"リバウンド処理",position:"ポジショニング",speed:"スピード",stamina:"スタミナ",puck:"パック処理",oneonone:"1対1"};
+
+function $(x){return document.getElementById(x)}
+function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){return null}}
+function log(x){S.feed.unshift("W"+S.week+"・"+x);S.feed=S.feed.slice(0,80)}
+function attrs(){return S.pos==="G"?GK:BASE}
+function names(){return S.pos==="G"?GKN:NAMES}
+function ovr(){let a=attrs();return Math.round(a.reduce((x,k)=>x+S.stats[k],0)/a.length)}
+function teamAt(level){
+ if(level==="NHL"){let x=pick(AFF);return [x[0],"NHL"]}
+ if(level==="AHL"){let x=pick(AFF);return [x[1],"AHL"]}
+ if(level==="ECHL"){let x=pick(AFF);return [x[2],"ECHL"]}
+ let l=pick(Object.keys(EURO));return [pick(EURO[l]),l]
+}
+
+function title(){
+ $("app").innerHTML=`<main><div class="title">🏒 ICE HOCKEY STORY</div><div class="sub">ONE CHOICE AT A TIME</div>
+ <div class="card"><h2>新しいキャリア</h2>
+ <label>選手名</label><input id="nm" value="HAYATO">
+ <label>ポジション</label><select id="po"><option>C</option><option>LW</option><option>RW</option><option>DF</option><option>G</option></select>
+ <label>スタート</label><select id="st"><option>Canada CHL</option><option>US NCAA</option><option>Sweden</option><option>Finland</option><option>Japan</option></select>
+ <button class="primary" onclick="start()">キャリアを始める</button></div>
+ <div class="card"><span class="pill">V7</span><p class="sub">48週間・個別能力・移籍市場を搭載。</p></div></main>`
+}
+function start(){
+ let pos=$("po").value, st=$("st").value, stats={};
+ (pos==="G"?GK:BASE).forEach(k=>stats[k]=42+Math.floor(Math.random()*16));
+ S={name:$("nm").value.trim()||"HAYATO",pos,origin:st,phase:"Junior",age:16,week:1,season:1,
+ league:st==="Canada CHL"?"CHL":st==="US NCAA"?"NCAA":st,team:pick(JUN[st]),stats,potential:attrs().reduce((a,k)=>a+30+Math.random()*20,0)/attrs().length,
+ form:68,energy:90,rep:0,gp:0,g:0,a:0,plus:0,cups:0,contract:"Junior / Amateur",years:0,
+ feed:["キャリア開始。48週間のシーズンが始まった。"],inbox:[],history:[],offers:[],playoff:false};
+ save();page="home";render()
+}
+function nav(){return `<nav>
+ <button class="${page==="home"?"active":""}" onclick="go('home')">🏒<br>ホーム</button>
+ <button class="${page==="career"?"active":""}" onclick="go('career')">👤<br>能力</button>
+ <button class="${page==="market"?"active":""}" onclick="go('market')">💼<br>移籍</button>
+ <button class="${page==="inbox"?"active":""}" onclick="go('inbox')">📨<br>受信箱</button>
+ <button class="${page==="season"?"active":""}" onclick="go('season')">📅<br>シーズン</button>
+ </nav>`}
+function hero(){return `<div class="card"><h2>${esc(S.name)}</h2><div class="sub">${S.age}歳 ・ ${S.pos} ・ ${esc(S.team)}</div>
+ <div class="grid" style="margin-top:10px"><div class="stat"><small>OVR</small><b>${ovr()}</b></div><div class="stat"><small>FORM</small><b>${S.form}</b></div><div class="stat"><small>ENERGY</small><b>${S.energy}</b></div><div class="stat"><small>REP</small><b>${S.rep}</b></div></div></div>`}
+function home(){
+ let event=S.inbox[0];
+ let action=event?`<div class="card"><span class="pill">NEXT EVENT</span><h2>${esc(event.title)}</h2><p>${esc(event.body)}</p>
+ <button class="primary" onclick="resolve(0)">${esc(event.c0)}</button><button onclick="resolve(1)">${esc(event.c1)}</button></div>`:
+ `<div class="card"><div class="sub">WEEK ${S.week} / 48</div><h2>今週の行動</h2>
+ <button class="choice primary" onclick="match()"><b>🏒 試合</b><small>出場・得点・評価を狙う</small></button>
+ <button class="choice" onclick="training()"><b>🏋️ 個人練習</b><small>伸ばす能力を選択する</small></button>
+ <button class="choice" onclick="tactical()"><b>📋 戦術練習</b><small>フォームとコーチ評価を上げる</small></button>
+ <button class="choice" onclick="rest()"><b>😴 休養</b><small>コンディション回復</small></button></div>`;
+ return `<main><div class="sub">🏒 ICE HOCKEY STORY</div>${hero()}${action}
+ <div class="card"><h3>CAREER FEED</h3>${S.feed.slice(0,10).map(x=>`<div class="feed">${esc(x)}</div>`).join("")}</div>${nav()}</main>`
+}
+function abilityRows(){
+ let ns=names();return attrs().map(k=>`<div class="stat"><small>${ns[k]}</small><b>${S.stats[k]}</b><div class="bar"><i style="width:${S.stats[k]}%"></i></div></div>`).join("")
+}
+function career(){
+ return `<main><div class="sub">🏒 能力・契約</div>${hero()}
+ <div class="card"><h3>能力値</h3><div class="grid">${abilityRows()}</div><p class="sub">潜在能力目安：${Math.round(S.potential)}</p></div>
+ <div class="card"><h3>所属・契約</h3><p>${esc(S.league)} / ${esc(S.team)}</p><p class="sub">${esc(S.contract)}${S.years?" ・ 残り"+S.years+"年":""}</p></div>
+ <div class="card"><h3>シーズン成績</h3><div class="grid"><div class="stat"><small>GP</small><b>${S.gp}</b></div><div class="stat"><small>G</small><b>${S.g}</b></div><div class="stat"><small>A</small><b>${S.a}</b></div><div class="stat"><small>優勝</small><b>${S.cups}</b></div></div></div>${nav()}</main>`
+}
+function training(){
+ let keys=attrs(), ns=names();
+ $("app").innerHTML=`<main><div class="card"><h2>個人練習</h2><p class="sub">伸ばしたい能力を1つ選択。能力が高いほど成長は遅くなる。</p>
+ ${keys.map(k=>`<button onclick="train('${k}')">${ns[k]}　現在 ${S.stats[k]}</button>`).join("")}</div></main>`
+}
+function train(k){
+ let gain=(Math.random()<.2?2:1);
+ if(S.stats[k]>=Math.round(S.potential))gain=0;
+ S.stats[k]=clamp(S.stats[k]+gain,1,99);S.energy=clamp(S.energy-14,0,100);S.form=clamp(S.form+1,0,100);
+ log(NAMES[k]||GKN[k]+"を重点練習。"+(gain?"能力が上がった。":"伸びはなかった。"));advance()
+}
+function tactical(){S.form=clamp(S.form+7,0,100);S.energy=clamp(S.energy-8,0,100);S.rep++;log("戦術練習。コーチ評価が上がった。");advance()}
+function rest(){S.energy=clamp(S.energy+30,0,100);S.form=clamp(S.form+5,0,100);log("休養してコンディションを回復。");advance()}
+
+function match(){
+ if(S.injury){log("負傷中のため欠場。");S.injury--;advance();return}
+ S.m={step:0,h:0,a:Math.floor(Math.random()*3)};momentScreen()
+}
+function momentScreen(){
+ let g=S.pos==="G";
+ let prompts=g?["2-on-1。パスが通りそうだ。","スロット正面からシュート。","残り30秒、1点差。"]:["敵陣でパックを保持。","スロットにスペースがある。","残り30秒、最後の攻撃。"];
+ let c=g?[["前に出る","角度を消す"],["深く構える","安定重視"],["リバウンドを外へ","守備重視"]]:[["シュート","得点を狙う"],["パス","アシストを狙う"],["ボードプレー","攻撃を継続"]];
+ $("app").innerHTML=`<main><div class="card"><div class="sub">GAME DAY ・ 勝負どころ ${S.m.step+1}/3</div><div class="score">${S.m.h} - ${S.m.a}</div><p>${prompts[S.m.step]}</p>${c.map((x,i)=>`<button class="choice" onclick="moment(${i})"><b>${x[0]}</b><small>${x[1]}</small></button>`).join("")}</div></main>`
+}
+function moment(i){
+ let power=ovr()+(S.form-50)*.14+(S.energy-50)*.08+(Math.random()*22-11);
+ if(S.pos==="G"){
+  if((i===1&&power<58)||(i!==1&&power<49))S.m.h++;else S.m.a++;
+ }else{
+  if(i===0&&power>57&&Math.random()<.63){S.m.h++;S.g++;S.rep+=3;log("試合でゴール！")}
+  else if(i===1&&power>51&&Math.random()<.68){S.a++;S.rep++;log("試合でアシスト！")}
+  else if(i===2)S.plus++;
+ }
+ S.energy=clamp(S.energy-8,0,100);S.m.step++;
+ if(S.m.step<3){momentScreen();return}
+ let r=S.m.h>S.m.a?"勝利":S.m.h===S.m.a?"引き分け":"敗戦";S.gp++;S.form=clamp(S.form+(r==="勝利"?5:r==="引き分け"?1:-4),15,100);
+ if(Math.random()<.025){S.injury=2;log("軽い負傷。2週間の欠場。")}
+ log("試合 "+S.m.h+"-"+S.m.a+"。"+r+"。");S.m=null;advance()
+}
+function advance(){
+ S.week++;
+ weeklyMarket();
+ if(S.week>48){endSeason();return}
+ save();render()
+}
+function weeklyMarket(){
+ if(S.week%8===0 || S.week===35){
+  if(S.phase==="Pro" && (S.league==="NHL"||S.league==="AHL"||S.league==="ECHL"||EURO[S.league])){
+   if(Math.random()<.45)makeOffer();
+  }
+  if((S.league==="CHL"||S.league==="NCAA")&&S.age>=18&&S.week===35){
+   let t=pick(AFF);S.inbox.unshift({title:"NHL Entry Draft評価",body:t[0]+"があなたを候補として評価。","c0":"ドラフトを目指す","c1":"現在地で成長"});log("ドラフト関連の連絡が届いた。")
+  }
+ }
+}
+function makeOffer(){
+ let target;
+ let roll=Math.random();
+ if(S.league==="NHL"&&roll<.5){let x=pick(AFF);target={team:x[0],league:"NHL",role:"Middle/Bottom 6",salary:900000+Math.floor(Math.random()*700000),years:1+Math.floor(Math.random()*3),type:"trade"}}
+ else if(S.league==="NHL"){let x=pick(AFF);target={team:x[0],league:"NHL",role:"Depth/Competition",salary:800000+Math.floor(Math.random()*500000),years:1+Math.floor(Math.random()*2),type:"free"}}
+ else if(S.league==="AHL"){let x=pick(AFF);target={team:x[0],league:"NHL",role:"NHL/AHL two-way",salary:775000+Math.floor(Math.random()*500000),years:1+Math.floor(Math.random()*2),type:"callup"}}
+ else if(S.league==="ECHL"){let x=pick(AFF);target={team:x[1],league:"AHL",role:"AHL call-up",salary:500000+Math.floor(Math.random()*250000),years:1,type:"callup"}}
+ else {let l=pick(Object.keys(EURO));target={team:pick(EURO[l]),league:l,role:"Top 6 / regular",salary:250000+Math.floor(Math.random()*450000),years:1+Math.floor(Math.random()*2),type:"europe"}}
+ S.offers.push(target);S.inbox.unshift({title:"移籍オファー",body:`${target.team}（${target.league}）からオファー。${target.role} / 年俸 $${target.salary.toLocaleString()} / ${target.years}年。`,c0:"オファーを見る",c1:"保留"});log(target.team+"から移籍関連の連絡。")
+}
+function market(){
+ let offers=S.offers;
+ $("app").innerHTML=`<main><div class="sub">💼 TRANSFER MARKET</div><div class="card"><h2>移籍市場</h2><p class="sub">能力・成績・評判・所属リーグによってオファーが変化する。</p>
+ ${offers.length?offers.map((o,i)=>`<div class="card"><h3>${esc(o.team)}</h3><span class="pill">${esc(o.league)}</span> <span class="pill">${esc(o.role)}</span><p>年俸 $${o.salary.toLocaleString()} / ${o.years}年</p><button class="green" onclick="accept(${i})">契約する</button><button onclick="decline(${i})">断る</button></div>`).join(""):'<p class="sub">現在オファーはありません。代理人やスカウト経由で市場が動きます。</p>'}
+ <button class="primary" onclick="makeOffer();go('market')">市場を確認する</button></div>${nav()}</main>`
+}
+function accept(i){
+ let o=S.offers[i];S.team=o.team;S.league=o.league;S.phase="Pro";S.contract=(o.league==="NHL"?"NHL Contract":o.league==="AHL"||o.league==="ECHL"?"Two-Way / Development Contract":"European Pro Contract");S.years=o.years;S.rep+=5;
+ if(o.league==="NHL")S.age=Math.max(S.age,18);
+ log(o.team+"へ移籍。"+o.role+"として契約。");S.offers.splice(i,1);S.inbox=[];save();page="home";render()
+}
+function decline(i){log(S.offers[i].team+"のオファーを断った。");S.offers.splice(i,1);save();go("market")}
+function resolve(i){
+ let e=S.inbox[0];S.inbox.shift();
+ if(e.title==="移籍オファー"){if(i===0){page="market"}else log("移籍オファーを保留した。")}
+ else if(e.title==="NHL Entry Draft"){if(i===0){let x=pick(AFF);S.phase="Pro";S.league="AHL";S.team=x[1];S.contract="NHL Entry-Level / Two-Way";S.years=3;S.rep+=8;log(x[0]+"組織と契約。AHLへ。")}}
+ save();render()
+}
+function inbox(){
+ let arr=S.inbox;
+ return `<main><div class="sub">📨 INBOX</div><h2>受信箱</h2>${arr.length?arr.map((e,i)=>`<div class="card"><h3>${esc(e.title)}</h3><p>${esc(e.body)}</p><button class="primary" onclick="openInbox(${i})">確認</button></div>`).join(""):'<div class="card sub">新しい通知はありません。</div>'}${nav()}</main>`
+}
+function openInbox(i){
+ let e=S.inbox[i];S.inbox.splice(i,1);
+ if(e.title==="移籍オファー"){page="market"}
+ else {if(e.title==="NHL Entry Draft"){if(confirm("ドラフトを目指してAHL/NHLへの道を進みますか？")){let x=pick(AFF);S.phase="Pro";S.league="AHL";S.team=x[1];S.contract="NHL Entry-Level / Two-Way";S.years=3;log(x[0]+"組織のAHLへ進んだ。")}}}
+ save();render()
+}
+function endSeason(){
+ S.history.unshift({season:S.season,age:S.age,league:S.league,team:S.team,gp:S.gp,g:S.g,a:S.a,ovr:ovr()});
+ if(S.g+S.a>=12){S.rep+=8;S.stats[S.pos==="G"?"save":"shoot"]=clamp(S.stats[S.pos==="G"?"save":"shoot"]+1,1,99);log("シーズン活躍。評価と能力が上昇。")}
+ if(S.league==="AHL"||S.league==="NHL")S.playoff=true;
+ if(S.years>0)S.years--;
+ S.age++;S.season++;S.week=1;S.gp=0;S.g=0;S.a=0;S.plus=0;S.energy=88;S.form=68;
+ log("シーズン終了。新しい48週間が始まる。");save();render()
+}
+function season(){
+ return `<main><div class="sub">📅 SEASON</div><div class="card"><h2>Season ${S.season}</h2><p class="sub">Week ${S.week} / 48 ・ ${S.age}歳</p>
+ <p>${esc(S.team)} / ${esc(S.league)}</p>${S.playoff?'<button class="primary" onclick="playoff()">プレーオフを進める</button>':""}</div>
+ <div class="card"><h3>今季成績</h3><div class="grid"><div class="stat"><small>GP</small><b>${S.gp}</b></div><div class="stat"><small>G</small><b>${S.g}</b></div><div class="stat"><small>A</small><b>${S.a}</b></div><div class="stat"><small>+/-</small><b>${S.plus}</b></div></div></div>
+ <div class="card"><h3>過去シーズン</h3>${S.history.length?S.history.map(h=>`<div class="feed">S${h.season}・${h.age}歳・${esc(h.team)}・${h.gp}GP ${h.g}G ${h.a}A・OVR ${h.ovr}</div>`).join(""):'<p class="sub">まだありません。</p>'}</div>${nav()}</main>`
+}
+function playoff(){
+ let chance=clamp(.42+(ovr()-50)*.012+(S.form-50)*.003,.2,.9);
+ if(Math.random()<chance){S.cups++;S.rep+=10;log("プレーオフ優勝！");}else log("プレーオフ敗退。");
+ S.playoff=false;save();render()
+}
+function go(p){page=p;render()}
+function render(){
+ if(!S){title();return}
+ if(S.retired){$("app").innerHTML=`<main><div class="title">CAREER COMPLETE</div><div class="card"><h2>${esc(S.name)}</h2><p>${S.age}歳で引退。</p><p>優勝 ${S.cups}回</p><button class="primary" onclick="localStorage.removeItem(KEY);S=null;title()">新しいキャリア</button></div></main>`;return}
+ if(page==="home")$("app").innerHTML=home();else if(page==="career")$("app").innerHTML=career();else if(page==="market")market();else if(page==="inbox")$("app").innerHTML=inbox();else season()
+}
+try{S=load();render()}catch(e){$("app").innerHTML=`<main><div class="card"><h2>起動エラー</h2><p>${esc(e.message)}</p><button onclick="localStorage.removeItem(KEY);location.reload()">セーブをリセット</button></div></main>`}
+</script></body></html>
