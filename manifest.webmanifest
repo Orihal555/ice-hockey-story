@@ -1,12 +1,12 @@
 {
   "name": "ICE HOCKEY STORY",
   "short_name": "Hockey Story",
-  "description": "アイスホッケー選手人生シミュレーション",
+  "description": "Pitch Story型アイスホッケー選手キャリアシミュレーション",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#0b1220",
+  "background_color": "#06101b",
+  "theme_color": "#06101b",
   "orientation": "portrait-primary",
   "icons": [
     {
