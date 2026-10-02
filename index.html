@@ -43,7 +43,7 @@ const A=D.aff,E=D.euro,J=D.junior;
 let S=null,tab="home";
 const $=id=>document.getElementById(id),R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const esc=x=>String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-function save(){if(S)localStorage.setItem("ihs3",JSON.stringify(S))}
+function save(){if(S)localStorage.setItem("ihs4",JSON.stringify(S))}
 function msg(x){S.log.unshift(`[${S.season}年・${S.week}週] ${x}`);S.log=S.log.slice(0,160)}
 function phase(){return S.league==="NHL"?"NHL":S.league==="AHL"?"AHL":S.league==="ECHL"?"ECHL":S.phase==="Junior"?S.league:"EUROPE"}
 function org(){return A.find(x=>x.includes(S.team))}
@@ -166,7 +166,7 @@ function seasonEnd(){
  const points=S.g+S.a;S.history.unshift({season:S.season,league:S.league,team:S.team,gp:S.gp,g:S.g,a:S.a,plus:S.plus});
  if(S.gp>0&&points/S.gp>=.7){S.awards.push("Top Performer");S.fame+=8;S.ovr=Math.min(S.pot,S.ovr+2)}
  else if(S.gp>0&&points/S.gp>=.4)S.ovr=Math.min(S.pot,S.ovr+1);
- if(S.league==="NHL"&&S.ovr>=70&&Math.random()<.25){S.trophies++;S.awards.push("Stanley Cup");msg("Stanley Cup制覇！")}
+ if(["NHL","AHL"].includes(S.league)&&S.gp>=8&&S.ovr>=55){S.playoff={round:1};msg(S.league==="NHL"?"プレーオフ進出！Stanley Cupを目指す。":"プレーオフ進出！Calder Cupを目指す。");}
  if(S.age>=18&&!S.drafted&&S.league==="CHL")draftEvent();
  if(S.age>=20&&S.ovr>=65&&Math.random()<.35){S.nat=true;S.fame+=6;msg("代表候補に選出。")}
  newSeason();save();render();
@@ -223,7 +223,7 @@ function season(){
  return `<div class="card"><h2>📅 シーズン</h2><div class="grid2"><div class="stat"><span>現在</span><b>W${S.week} / 24</b></div><div class="stat"><span>年齢</span><b>${S.age}</b></div><div class="stat"><span>フォーム</span><b>${S.form}</b></div><div class="stat"><span>体力</span><b>${S.energy}</b></div></div>
 <div class="notice">毎週1アクション。試合・練習・休養を選び、節目にはイベント。シーズン終盤に成績・受賞・契約がキャリアを変える。</div></div>
 <div class="card"><h2>シーズンイベント</h2><div class="list"><div class="item"><b>W8</b> スカウト / ロッカーイベント</div><div class="item"><b>W15</b> トレード期限</div><div class="item"><b>W16</b> キャリアイベント</div><div class="item"><b>W22</b> 終盤イベント</div><div class="item"><b>W24</b> シーズン終了・成績集計</div></div></div>
-${S.playoff?`<div class="card"><h2>🏆 PLAYOFF</h2><div class="notice">ラウンド ${S.playoff.round}。勝てば次へ。</div><button class="warn" style="width:100%" onclick="playoffs()">プレーオフを戦う</button></div>`:""}
+${(!S.playoff&&S.week>=20&&["NHL","AHL"].includes(S.league))?`<div class="card"><h2>🏆 PLAYOFF</h2><div class="notice">終盤戦。ここまでの成績次第でプレーオフ進出を狙える。</div><button class="warn" style="width:100%" onclick="S.playoff={round:1};msg('プレーオフ進出！');render()">プレーオフに挑戦</button></div>`:""}${S.playoff?`<div class="card"><h2>🏆 PLAYOFF</h2><div class="notice">ラウンド ${S.playoff.round}。勝てば次へ。</div><button class="warn" style="width:100%" onclick="playoffs()">プレーオフを戦う</button></div>`:""}
 <div class="card"><h2>代表</h2><div class="muted">OVR・FAME・クラブ実績が高まると代表候補に選ばれやすい。</div><button style="margin-top:9px;width:100%" onclick="national()">代表選考を確認</button></div>`}
 function guide(){return `<div class="card"><h2>🎮 GAME LOOP</h2><div class="list">
 <div class="item"><b>① 1週間を選ぶ</b><br><span class="muted">試合・練習・休養。毎週1アクション。</span></div>
@@ -233,7 +233,7 @@ function guide(){return `<div class="card"><h2>🎮 GAME LOOP</h2><div class="li
 </div></div>
 <div class="card"><h2>🏒 北米</h2><div class="notice"><b>NHL → AHL → ECHL</b>はサッカーの昇降格ではなく、NHL組織内のアサイン・コールアップが中心。ゲームでも機会を勝ち取る仕組みにする。</div></div>
 <div class="card"><h2>🌎 リーグ</h2><div class="list">${["NHL","AHL","ECHL","SHL","Liiga","DEL","National League","Czech Extraliga","ICEHL","Asia League"].map(x=>`<div class="item"><b>${x}</b><br><span class="muted">${x==="NHL"?"Stanley Cup・最高峰":x==="AHL"?"NHL育成・Calder Cup":x==="ECHL"?"プロ育成・AHLへの道":"欧州/アジアでの移籍・競争"}</span></div>`).join("")}</div></div>
-<div class="card"><button class="danger" style="width:100%" onclick="if(confirm('セーブを削除しますか？')){localStorage.removeItem('ihs3');S=null;renderStart()}">セーブ削除</button></div>`}
+<div class="card"><button class="danger" style="width:100%" onclick="if(confirm('セーブを削除しますか？')){localStorage.removeItem('ihs4');S=null;renderStart()}">セーブ削除</button></div>`}
 function renderStart(){
  $("root").innerHTML=`<div class="app"><div class="start"><div class="hero"><div class="brand">ICE HOCKEY STORY<small>FROM ROOKIE TO LEGEND</small></div><h1 style="margin:9px 0 4px;font-size:27px">君のホッケー人生を作ろう。</h1><div class="muted" style="font-size:11px;line-height:1.6">Pitch Story型の「1アクション→結果→次の選択」をアイスホッケーに置き換えたキャリアシミュレーション。</div></div>
 <div class="card"><h2>PLAYER CREATE</h2><div class="field"><label>選手名</label><input id="name" placeholder="HAYATO"></div><div class="grid2"><div class="field"><label>ポジション</label><select id="pos"><option>C</option><option>LW</option><option>RW</option><option>DF</option><option>G</option></select></div><div class="field"><label>スタート</label><select id="path"><option>Canada CHL</option><option>US NCAA</option><option>Sweden</option><option>Finland</option><option>Japan</option></select></div></div><button class="primary" style="width:100%" onclick="start()">🏒 キャリア開始</button></div>
@@ -243,7 +243,16 @@ function render(){
  let content=tab==="home"?home():tab==="career"?career():tab==="inbox"?inbox():tab==="season"?season():guide();
  $("root").innerHTML=`<div class="app">${top()}${hero()}${content}</div>${nav()}`;save();
 }
-function load(){try{S=JSON.parse(localStorage.getItem("ihs3"))}catch(e){S=null}render()}
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-load();
+function load(){try{S=JSON.parse(localStorage.getItem("ihs4"))}catch(e){S=null}render()}
+
+// V4: Service Workerを使わず、Safariの黒画面を防止。
+window.addEventListener("error", function(e){
+  const root=document.getElementById("root");
+  if(root && !root.innerHTML.trim()) root.innerHTML='<div style="padding:24px;font-family:-apple-system;color:#fff;background:#06101b;min-height:100vh"><h2>🏒 起動エラー</h2><p>ページの読み込み中にエラーが発生しました。</p><p style="color:#8ea7ba;font-size:13px">Safariを再読み込みしてください。それでも直らない場合はこの画面をスクショしてください。</p></div>';
+});
+try { load(); } catch(e) {
+  console.error(e);
+  document.getElementById("root").innerHTML='<div style="padding:24px;font-family:-apple-system;color:#fff;background:#06101b;min-height:100vh"><h2>🏒 ICE HOCKEY STORY V4</h2><p>起動処理でエラーが発生しました。</p><pre style="white-space:pre-wrap;color:#ff7070;font-size:11px">'+esc(e.message||e)+'</pre><button onclick="localStorage.removeItem(\'ihs4\');location.reload()">セーブをリセットして再起動</button></div>';
+}
+
 </script></body></html>
