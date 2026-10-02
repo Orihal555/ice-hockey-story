@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="theme-color" content="#0b1220">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ICE HOCKEY STORY">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  html, body { overscroll-behavior: none; }
+  body { -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-inset-bottom); }
+  button, select, input { min-height: 44px; touch-action: manipulation; }
+  @media (max-width: 600px) {
+    body { font-size: 15px; }
+    button { font-size: 15px; }
+    .container, main, .wrap { max-width: 100% !important; width: 100% !important; box-sizing: border-box; }
+  }
+</style>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ICE HOCKEY STORY — Career Simulator</title>
+<style>
+:root{--bg:#07101b;--panel:#101d2d;--panel2:#14263c;--line:#2b4764;--text:#edf6ff;--muted:#91a9c0;--ice:#62d0ff;--good:#58db91;--warn:#ffd166;--bad:#ff7474}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#12304c 0,#07101b 40%,#050b13 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:1180px;margin:auto;padding:14px}.hero{padding:12px 2px 14px}.hero h1{font-size:29px;letter-spacing:.09em;margin:0}.hero p{margin:5px 0;color:var(--muted)}
+.layout{display:grid;grid-template-columns:285px 1fr;gap:13px}.card{background:#101d2df2;border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:0 8px 25px #0005}.side>.card{margin-bottom:12px}
+h2{font-size:17px;margin:0 0 10px}h3{font-size:14px;margin:0 0 8px}.muted,.small{color:var(--muted);font-size:12px}.tag{display:inline-block;border:1px solid #3d5d7b;border-radius:999px;padding:2px 7px;font-size:10px;margin:2px;color:#c9e7fa}
+.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.stat{background:#091523;border:1px solid #1e344b;border-radius:9px;padding:8px}.stat span{display:block;color:var(--muted);font-size:10px}.stat b{font-size:18px}.meter{margin-top:8px}.meterline{height:7px;background:#07101a;border-radius:10px;overflow:hidden}.meterline i{display:block;height:100%;background:var(--ice)}
+.actions{display:flex;flex-wrap:wrap;gap:7px}button{border:1px solid #3d6385;background:#17324d;color:#fff;border-radius:8px;padding:8px 10px;cursor:pointer}button:hover{filter:brightness(1.16)}button.primary{background:#126e96;border-color:#67d5ff}button.good{background:#145a3b;border-color:#58db91}button.warn{background:#65491d;border-color:#ffd166}button.danger{background:#652e38;border-color:#ff7474}button:disabled{opacity:.38;cursor:not-allowed}
+.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.tabs button{white-space:nowrap}.notice{background:#17273b;border-left:4px solid var(--warn);padding:10px;border-radius:7px;margin:8px 0;font-size:12px;line-height:1.55}
+.log{height:235px;overflow:auto;background:#07111e;border:1px solid #1b3047;border-radius:9px;padding:8px}.log div{padding:6px 0;border-bottom:1px solid #17283c;font-size:12px}
+.offer{background:#0a1726;border:1px solid #294761;border-radius:9px;padding:9px;margin:7px 0}.offer strong{color:var(--ice)}
+table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:6px;border-bottom:1px solid #20364d;text-align:left;vertical-align:top}th{color:#a9c5dc}
+.start{max-width:720px;margin:30px auto}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}.field input,.field select{width:100%;padding:9px;background:#081522;color:#fff;border:1px solid #36526e;border-radius:8px}.field{margin-bottom:10px}
+.phase{display:inline-block;padding:3px 8px;border-radius:99px;background:#183650;border:1px solid #3e6b8f;font-size:10px}.score{font-size:25px;font-weight:700}.historyrow{padding:7px 0;border-bottom:1px solid #21364d;font-size:12px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.hero h1{font-size:23px}}
+</style>
+</head>
+<body><div id="root"></div>
+<script>
+const affiliations=[
+["Edmonton Oilers","Bakersfield Condors","Fort Wayne Komets"],["Seattle Kraken","Coachella Valley Firebirds","Kansas City Mavericks"],
+["Vancouver Canucks","Abbotsford Canucks","Kalamazoo Wings"],["Minnesota Wild","Iowa Wild","Jacksonville Icemen"],
+["Boston Bruins","Providence Bruins","Maine Mariners"],["Colorado Avalanche","Colorado Eagles","New Mexico Goatheads"],
+["Florida Panthers","Charlotte Checkers","Savannah Ghost Pirates"],["Washington Capitals","Hershey Bears","South Carolina Stingrays"],
+["Detroit Red Wings","Grand Rapids Griffins","Toledo Walleye"],["Toronto Maple Leafs","Toronto Marlies","Cincinnati Cyclones"],
+["Calgary Flames","Calgary Wranglers","Rapid City Rush"],["Dallas Stars","Texas Stars","Idaho Steelheads"],
+["New Jersey Devils","Utica Comets","Adirondack Thunder"],["Montreal Canadiens","Laval Rocket","Trois-Rivières Lions"],
+["Tampa Bay Lightning","Syracuse Crunch","Orlando Solar Bears"],["Philadelphia Flyers","Lehigh Valley Phantoms","Reading Royals"],
+["Pittsburgh Penguins","Wilkes-Barre/Scranton Penguins","Florida Everblades"],["Columbus Blue Jackets","Cleveland Monsters","Wheeling Nailers"],
+["Los Angeles Kings","Ontario Reign","Greenville Swamp Rabbits"],["Chicago Blackhawks","Rockford IceHogs","Indy Fuel"],
+["San Jose Sharks","San Jose Barracuda","Wichita Thunder"],["Anaheim Ducks","San Diego Gulls","Tulsa Oilers"],
+["Nashville Predators","Milwaukee Admirals","Atlanta Gladiators"],["Winnipeg Jets","Manitoba Moose","Bloomington Bison"],
+["Carolina Hurricanes","Chicago Wolves","Greensboro Gargoyles"],["St. Louis Blues","Springfield Thunderbirds","Worcester Railers"],
+["Ottawa Senators","Belleville Senators","Allen Americans"],["New York Islanders","Hamilton Hammers","Trenton Ironhawks"],
+["Vegas Golden Knights","Henderson Silver Knights","Tahoe Knight Monsters"],["Buffalo Sabres","Rochester Americans",null],
+["New York Rangers","Hartford Wolf Pack",null],["Utah Mammoth","Tucson Roadrunners",null]
+];
+const euro={
+"SHL":["Frölunda HC","Färjestad BK","Skellefteå AIK","Luleå HF","Rögle BK","Växjö Lakers"],
+"Liiga":["Tappara","Ilves","HIFK","KalPa","Kärpät","Lukko"],
+"DEL":["Eisbären Berlin","Adler Mannheim","Red Bull München","ERC Ingolstadt","Grizzlys Wolfsburg","Kölner Haie"],
+"National League":["ZSC Lions","HC Davos","SC Bern","EV Zug","Lausanne HC","Fribourg-Gottéron"],
+"Czech Extraliga":["HC Dynamo Pardubice","HC Sparta Praha","HC Oceláři Třinec","HC Kometa Brno","Mountfield HK","Bílí Tygři Liberec"],
+"ICEHL":["Red Bull Salzburg","KAC","Vienna Capitals","HC Bozen","Fehérvár AV19","Graz99ers"],
+"Asia League":["Tohoku Free Blades","Red Eagles Hokkaido","HL Anyang","Yokohama Grits","Nikko IceBucks"]
+};
+const juniors={
+"Canada CHL":["London Knights","Oshawa Generals","Seattle Thunderbirds","Medicine Hat Tigers","Drummondville Voltigeurs"],
+"US NCAA":["Boston University","University of Michigan","Minnesota Golden Gophers","Penn State","Denver Pioneers"],
+"Sweden":["Frölunda HC J20","Djurgårdens IF J20","Skellefteå AIK J20"],
+"Finland":["Tappara U20","HIFK U20","Jokerit U20"],
+"Japan":["Tohoku Free Blades","Red Eagles Hokkaido","HL Anyang"]
+};
+let S=null;
+const $=x=>document.getElementById(x),R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function esc(x){return String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function save(){localStorage.setItem("ihs2",JSON.stringify(S))}
+function load(){try{S=JSON.parse(localStorage.getItem("ihs2"));if(S){render();return}}catch(e){}renderStart()}
+function msg(t){S.log.unshift("["+S.season+"年 / "+S.week+"週] "+t);S.log=S.log.slice(0,120)}
+function start(){
+ let name=$("name").value.trim()||"HAYATO",pos=$("pos").value,path=$("path").value;
+ let jr=path==="Canada CHL"?juniors["Canada CHL"]:path==="US NCAA"?juniors["US NCAA"]:path==="Sweden"?juniors["Sweden"]:path==="Finland"?juniors["Finland"]:juniors["Japan"];
+ S={name,pos,age:16,phase:"Junior",junior:path,team:jr[R(0,jr.length-1)],league:path==="US NCAA"?"NCAA":path==="Japan"?"Asia League":path==="Sweden"?"SHL":path==="Finland"?"Liiga":"CHL",
+ ovr:R(42,50),pot:R(70,90),season:1,week:1,energy:90,morale:75,fame:0,money:0,contract:"Amateur / junior",contractYears:0,
+ gp:0,g:0,a:0,plus:0,pim:0,injury:0,agent:false,drafted:false,draftRound:null,draftTeam:null,nhlContract:false,twoWay:false,waiverEligible:false,playoffs:0,cup:0,calder:0,offers:[],nat:false,retired:false,
+ seasonStats:[],history:[],log:[],tradeDeadline:false,recallBlocked:false,playoffPhase:null};
+ msg("ジュニア/大学からキャリア開始。スカウト評価を上げてドラフトを目指す。");save();render();
+}
+function info(){
+ return affiliations.find(x=>x.includes(S.team));
+}
+function currentLevel(){return S.phase==="Junior"?S.league:S.league}
+function ability(){return Math.round(S.ovr+(S.morale-50)*.07+(S.energy-50)*.05)}
+function improve(n){S.ovr=Math.min(S.pot,S.ovr+n)}
+function advance(){
+ S.week++;
+ if(S.injury>0)S.injury--;
+ if(S.week>12){seasonEnd();return}
+ if(S.age>=18 && !S.drafted && S.league==="CHL" && S.week===8 && Math.random()<.12){draftEvent()}
+ save();render()
+}
+function train(kind){
+ if(S.injury)return msg("負傷中はトレーニングできない。"),render();
+ let n=kind==="skill"?R(1,3):kind==="strength"?R(0,2):R(0,2);
+ if(S.energy<35)n=Math.max(0,n-1);improve(n);S.energy=Math.max(0,S.energy-(kind==="skill"?14:11));S.morale=Math.min(100,S.morale+2);
+ msg((kind==="skill"?"スキル":kind==="strength"?"フィジカル":"戦術")+"練習。OVR +"+n);advance()
+}
+function rest(){S.energy=Math.min(100,S.energy+28);S.morale=Math.min(100,S.morale+4);msg("休養してコンディション回復。");advance()}
+function match(){
+ if(S.injury){msg("負傷中のため欠場。");advance();return}
+ let x=ability()+R(-8,9),g=0,a=0;
+ if(S.pos!=="G"){if(x>58&&Math.random()<.5)g=R(0,2);if(x>54&&Math.random()<.58)a=R(0,2)}
+ let my=R(0,5),op=R(0,5);if(g+a>0)S.fame+=g*2+a;S.gp++;S.g+=g;S.a+=a;S.plus+=my>=op?1:-1;S.pim+=Math.random()<.16?R(2,4):0;S.energy=Math.max(0,S.energy-22);S.morale=Math.max(25,Math.min(100,S.morale+(my>op?5:-2)));
+ msg("試合 "+my+"-"+op+" / "+(g?"G"+g+" ":"")+(a?"A"+a:"")+(g+a?"":"無得点"));
+ if(Math.random()<.04){S.injury=R(1,3);msg("負傷。"+S.injury+"週離脱。")}
+ if(Math.random()<.09)improve(1);
+ advance()
+}
+function draftEvent(){
+ let candidates=["Toronto Maple Leafs","Boston Bruins","Edmonton Oilers","Vancouver Canucks","Minnesota Wild","Detroit Red Wings","Colorado Avalanche","Seattle Kraken","Florida Panthers","Dallas Stars","New York Rangers","Montreal Canadiens"];
+ S.drafted=true;S.draftRound=R(1,7);S.draftTeam=candidates[R(0,candidates.length-1)];S.fame+=8;
+ msg("NHL Entry Draftで"+S.draftRound+"巡目指名！ "+S.draftTeam+"が交渉権を獲得。");
+}
+function camp(){
+ if(S.age<18){msg("NHLキャンプは18歳以降を目安にする。");return render()}
+ let x=ability()+R(-5,8);
+ if(x>=70){S.nhlContract=true;S.twoWay=true;S.contract="NHL Entry-Level / Two-Way";S.contractYears=3;S.league="AHL";S.phase="Pro";let f=affiliations.find(v=>v[0]===S.draftTeam)||affiliations[R(0,affiliations.length-1)];S.team=f[1];S.fame+=8;msg("トレーニングキャンプ合格。2-way型のNHL契約を結び、AHLへアサイン。")}
+ else if(x>=58){S.contract="PTO";S.contractYears=0;S.phase="Pro";S.league="ECHL";let f=affiliations.find(v=>v[0]===S.draftTeam)||affiliations[R(0,affiliations.length-1)];S.team=f[2]||f[1];msg("PTOでプロキャンプ参加。開幕ロスター入りではなく育成リーグからのスタート。")}
+ else {msg("キャンプで契約を得られず。欧州/大学/ジュニア継続の選択肢を探す。")}
+ render()
+}
+function offerList(){
+ let arr=[],f=info();
+ if(S.league==="ECHL"&&f&&f[1]){arr.push({kind:"CALLUP",league:"AHL",team:f[1],text:"AHLへコールアップ"});if(S.ovr>=68)arr.push({kind:"NHL",league:"NHL",team:f[0],text:"NHL緊急/短期コールアップ"})}
+ if(S.league==="AHL"&&f){arr.push({kind:"NHL",league:"NHL",team:f[0],text:"NHLコールアップ"});if(f[2])arr.push({kind:"ASSIGN",league:"ECHL",team:f[2],text:"ECHLへ再アサイン"})}
+ if(S.league==="NHL"&&f)arr.push({kind:"ASSIGN",league:"AHL",team:f[1],text:"AHL再アサイン"});
+ ["SHL","Liiga","DEL","National League","Czech Extraliga","ICEHL","Asia League"].forEach(l=>{if(l!==S.league&&S.ovr>=55&&Math.random()<.45)arr.push({kind:"TRANSFER",league:l,team:euro[l][R(0,euro[l].length-1)],text:"欧州移籍オファー"})});
+ if(S.league==="Asia League"&&S.ovr>=62)arr.push({kind:"LOAN",league:"DEL",team:euro.DEL[R(0,5)],text:"DELへの1年レンタル"});
+ return arr.slice(0,7)
+}
+function market(){S.offers=offerList();msg("エージェントが市場を調査。");render()}
+function accept(i){
+ let o=S.offers[i];if(!o)return;
+ if(o.kind==="CALLUP"||o.kind==="NHL"||o.kind==="ASSIGN"){S.league=o.league;S.team=o.team;S.phase="Pro";S.contract=o.league==="NHL"?"NHL Two-Way / Standard Contract":"NHL organization assignment";S.contractYears=o.league==="NHL"?2:1}
+ else {S.league=o.league;S.team=o.team;S.phase="Pro";S.contract=o.kind==="LOAN"?"Loan (1 season)":"European professional contract";S.contractYears=o.kind==="LOAN"?1:2}
+ if(o.league==="NHL")S.nhlContract=true;S.offers=[];S.money+=o.league==="NHL"?150000:o.league==="AHL"?50000:60000;S.morale=Math.min(100,S.morale+7);
+ msg(o.text+"："+o.team+"へ。");render()
+}
+function decline(i){S.offers.splice(i,1);msg("オファーを辞退。");render()}
+function trade(){
+ if(S.league==="NHL"||S.league==="AHL"||S.league==="ECHL"){
+  let f=affiliations.filter(x=>x[0]!==info()?.[0]);let x=f[R(0,f.length-1)];
+  if(S.league==="NHL"){S.team=x[0];msg("トレード期限日にNHLチーム間トレード。"+x[0]+"へ移籍。")}
+  else if(S.nhlContract){S.team=S.league==="AHL"?x[1]:x[2]||x[1];msg("NHL組織内の権利移動に伴いマイナー側の所属先が変更。"+S.team+"へ。")}
+  else msg("トレード市場をチェックしたが、契約状況から成立せず。");
+ }else msg("欧州ではトレード期限より契約満了・移籍交渉が中心。");
+ S.tradeDeadline=true;render()
+}
+function playoffs(){
+ if(S.playoffPhase){let win=Math.random()<Math.min(.85,.42+(S.ovr-50)*.012);S.playoffs++;if(win){S.morale=Math.min(100,S.morale+5);if(S.playoffs>=4){S.cup++;msg("プレーオフ制覇！"+(S.league==="NHL"?"STANLEY CUP":"リーグ優勝")+"獲得。");S.playoffs=0}else msg("プレーオフ勝利。次ラウンドへ。")}else{msg("プレーオフ敗退。");S.playoffPhase=null;seasonEnd(true);return}render()}
+ else {S.playoffPhase=1;msg("プレーオフ進出。");render()}
+}
+function national(){
+ if(S.ovr<57){msg("代表選考で落選。まずクラブで実績を積む。");return render()}
+ S.nat=true;S.fame+=7;S.morale=Math.min(100,S.morale+8);let win=Math.random()<.55;msg("日本代表に選出。国際大会で"+(win?"勝利":"敗戦")+"、経験値を獲得。");improve(1);render()
+}
+function seasonEnd(fromPO=false){
+ let p=S.g+S.a;S.seasonStats.unshift({season:S.season,league:S.league,team:S.team,gp:S.gp,g:S.g,a:S.a,p:S.g+S.a,plus:S.plus});
+ if(S.gp&&p/S.gp>.65)improve(2);else if(S.gp&&p/S.gp>.35)improve(1);
+ S.age++;S.season++;S.week=1;S.g=S.a=S.gp=S.plus=S.pim=0;S.energy=88;S.morale=Math.min(100,S.morale+4);S.tradeDeadline=false;S.recallBlocked=false;S.playoffPhase=null;
+ if(S.contractYears>0)S.contractYears--;
+ if(S.contractYears===0&&S.phase==="Pro"){S.offers=offerList();msg("契約満了。移籍市場が開いた。")}else S.offers=[];
+ if(S.age>=19&&Math.random()<.28)S.nat=true;
+ msg("新シーズン開始。");save();render()
+}
+function retire(){S.retired=true;msg("現役引退。キャリア終了。");save();render()}
+function renderStart(){
+ $("root").innerHTML=`<div class="app"><div class="hero"><h1>ICE HOCKEY STORY</h1><p>ジュニア → ドラフト → プロ契約 → AHL/ECHL → NHL / 欧州 → 代表 → 引退まで。</p></div>
+ <div class="start card"><h2>NEW CAREER</h2><div class="formgrid"><div class="field"><label>選手名</label><input id="name" placeholder="HAYATO"></div><div class="field"><label>ポジション</label><select id="pos"><option>C</option><option>LW</option><option>RW</option><option>DF</option><option>G</option></select></div></div>
+ <div class="field"><label>育成ルート</label><select id="path"><option>Canada CHL</option><option>US NCAA</option><option>Sweden</option><option>Finland</option><option>Japan</option></select></div>
+ <div class="notice">NHLルートでは、ドラフト後にEntry-Level契約、キャンプ、PTO、AHL/ECHLアサイン、NHLコールアップを経験できる。欧州ルートではクラブ間移籍・レンタルを中心に進む。</div>
+ <button class="primary" onclick="start()">CAREER START</button><div class="small" style="margin-top:10px">※現実の契約・ウェーバー・ドラフト年齢等を完全再現するものではなく、ゲームとして簡略化しています。</div></div></div>`
+}
+function render(){
+ if(!S||S.retired){renderStart();return}
+ let f=info(), offers=S.offers.map((o,i)=>`<div class="offer"><strong>${esc(o.team)}</strong> <span class="tag">${esc(o.league)}</span><div class="small">${esc(o.text)}</div><button class="good" onclick="accept(${i})">受諾</button> <button onclick="decline(${i})">辞退</button></div>`).join("");
+ let history=S.seasonStats.map(x=>`<div class="historyrow">S${x.season} / ${esc(x.league)} / ${esc(x.team)} — GP ${x.gp}, ${x.g}+${x.a}=${x.p}, +/- ${x.plus}</div>`).join("");
+ let playoff=S.playoffPhase?`<button class="warn" onclick="playoffs()">プレーオフ試合</button>`:"";
+ $("root").innerHTML=`<div class="app"><div class="hero"><h1>ICE HOCKEY STORY</h1><p>${esc(S.name)} / ${S.age}歳 / ${S.pos}　<span class="tag">${esc(S.league)}</span> <b>${esc(S.team)}</b>　<span class="phase">${S.phase}</span></p></div>
+ <div class="layout"><aside class="side">
+ <div class="card"><h2>PLAYER</h2><div class="statgrid"><div class="stat"><span>OVR</span><b>${S.ovr}</b></div><div class="stat"><span>POT</span><b>${S.pot}</b></div><div class="stat"><span>G</span><b>${S.g}</b></div><div class="stat"><span>A</span><b>${S.a}</b></div><div class="stat"><span>GP</span><b>${S.gp}</b></div><div class="stat"><span>FAME</span><b>${S.fame}</b></div><div class="stat"><span>+/-</span><b>${S.plus}</b></div><div class="stat"><span>¥</span><b>${S.money.toLocaleString()}</b></div></div>
+ <div class="meter">体力 ${S.energy}<div class="meterline"><i style="width:${S.energy}%"></i></div></div><div class="meter">士気 ${S.morale}<div class="meterline"><i style="width:${S.morale}%"></i></div></div></div>
+ <div class="card"><h3>CONTRACT</h3><div>${esc(S.contract)}</div><div class="small">残り ${S.contractYears}年 / NHL契約権: ${S.nhlContract?"あり":"なし"}</div>${f?`<hr style="border-color:#20364d;border-width:1px 0 0"><div class="small">組織：${esc(f[0])}<br>AHL：${esc(f[1])}<br>ECHL：${esc(f[2]||"—")}</div>`:""}</div>
+ <div class="card"><h3>CAREER STATUS</h3><div class="small">Season ${S.season} / Week ${S.week}/12</div><div class="small">ドラフト: ${S.drafted?S.draftTeam+" / "+S.draftRound+"巡目":"未指名"}</div><div class="small">代表: ${S.nat?"選出歴あり":"未選出"}</div><div class="small">優勝: ${S.cup}回</div></div>
+ </aside>
+ <main><div class="card"><div class="tabs">
+ ${S.phase==="Junior"?`<button onclick="train('skill')">スキル練習</button><button onclick="train('strength')">フィジカル</button><button onclick="rest()">休養</button><button class="primary" onclick="match()">試合</button>${S.age>=18?'<button class="warn" onclick="camp()">NHLキャンプ</button>':""}`:
+ `<button onclick="train('skill')">スキル</button><button onclick="train('strength')">フィジカル</button><button onclick="rest()">休養</button><button class="primary" onclick="match()">試合</button><button onclick="market()">移籍市場</button>${S.week>=6&&!S.tradeDeadline?'<button onclick="trade()">トレード期限</button>':""}${playoff}<button class="warn" onclick="national()">代表選考</button>`}
+ </div>
+ <div class="notice"><b>北米モデル：</b>NHL→AHL→ECHLは通常の「降格・昇格」ではない。NHL契約下でAHL/ECHLへアサインされ、パフォーマンスやチーム事情でコールアップ・再アサインが発生する。AHL公式もAHL選手にはNHL契約からAHLへ割り当てられる選手がいると説明している。<br>
+ <b>2026-27 CBA要素：</b>AHLへアサインされた選手は、NHLへ再度リコールされる前にAHLの試合へ出場する必要がある、という新ルールを簡略化して再現。</div>
+ ${offers?`<h3>INBOX / MARKET</h3>${offers}`:"<div class='small'>現在のオファーなし。シーズン終盤・契約満了・市場調査で動きます。</div>"}
+ </div>
+ <div class="card" style="margin-top:12px"><h2>CAREER LOG</h2><div class="log">${S.log.map(x=>"<div>"+esc(x)+"</div>").join("")}</div></div>
+ <div class="card" style="margin-top:12px"><h2>SEASON HISTORY</h2>${history||"<div class='small'>まだシーズン記録なし。</div>"}</div>
+ <div class="card" style="margin-top:12px"><h2>HOCKEY WORLD</h2><table><tr><th>カテゴリ</th><th>ゲーム内システム</th></tr>
+ <tr><td>CHL / NCAA / Europe junior</td><td>育成、スカウト評価、ドラフト候補化</td></tr><tr><td>NHL Draft</td><td>1〜7巡目指名、球団との契約交渉</td></tr>
+ <tr><td>NHL</td><td>Entry-Level / Two-Way、ロスター、トレード、プレーオフ、Stanley Cup</td></tr>
+ <tr><td>AHL</td><td>NHLトップ育成リーグ。コールアップ/再アサイン、Calder Cup</td></tr>
+ <tr><td>ECHL</td><td>NHL/AHL提携の育成環境。AHLへのコールアップ</td></tr>
+ <tr><td>欧州</td><td>SHL、Liiga、DEL、National League、Czech Extraliga、ICEHL、Asia League。移籍/レンタル</td></tr>
+ <tr><td>代表</td><td>日本代表選考・国際大会・評価上昇</td></tr></table>
+ <div class="actions" style="margin-top:10px"><button class="danger" onclick="retire()">現役引退</button><button onclick="localStorage.removeItem('ihs2');S=null;renderStart()">SAVE RESET</button></div></div>
+ <div class="small" style="margin-top:9px">このゲームはシミュレーション。実際のウェーバー、契約登録、サラリーキャップ、ドラフト資格、各国リーグの登録規定を完全再現するものではありません。</div>
+ </main></div></div>`;
+ save();
+}
+load();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body></html>
